@@ -22,24 +22,30 @@ namespace csharp_blog_backend.Controllers
 
         // GET: api/Posts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Post>>> Getposts()
+        public async Task<ActionResult<IEnumerable<Post>>> Getposts(string? stringa)
         {
-          if (_context.posts == null)
-          {
-              return NotFound();
-          }
-          
-            return await _context.posts.ToListAsync();
+            if (_context.posts == null)
+            {
+                return NotFound();
+            }
+            if (stringa != null)
+            {
+                return await _context.posts.Where(it => it.Title.Contains(stringa) || it.Description.Contains(stringa)).ToListAsync();
+            }
+            else
+            {
+                return await _context.posts.ToListAsync();
+            }
         }
 
         // GET: api/Posts/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Post>> GetPost(int id)
         {
-          if (_context.posts == null)
-          {
-              return NotFound();
-          }
+            if (_context.posts == null)
+            {
+                return NotFound();
+            }
             var post = await _context.posts.FindAsync(id);
 
             if (post == null)
@@ -47,12 +53,11 @@ namespace csharp_blog_backend.Controllers
                 return NotFound();
             }
 
-            
+
             return post;
         }
 
         // PUT: api/Posts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPost(int id, Post post)
         {
@@ -83,24 +88,21 @@ namespace csharp_blog_backend.Controllers
         }
 
         // POST: api/Posts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Post>> PostPost([FromForm] Post post)
         {
             FileInfo fileInfo = new FileInfo(post.File.FileName);
-            //post.Image = $"FileLocal.{fileInfo.Extension}";
             Guid g = Guid.NewGuid();
             string fileName = g.ToString() + fileInfo.Extension;
-            
-            //Estrazione File e salvataggio su file system.
-            //Agendo su Request ci prendiamo il file e lo salviamo su file system.
+
+
             string Image = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\Files");
 
             if (!Directory.Exists(Image))
                 Directory.CreateDirectory(Image);
-           
 
-          
+
+
 
             string fileNameWithPath = Path.Combine(Image, fileName);
             byte[] b;
